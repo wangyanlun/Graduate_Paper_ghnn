@@ -3,7 +3,7 @@ import torch.optim as optim
 import numpy as np
 import pandas as pd
 import os
-from ghnn_model import StackedGHNN
+from ghnn_model_double_pendulum import StackedGHNN
 
 # Hyperparams
 hidden_dim = 25
