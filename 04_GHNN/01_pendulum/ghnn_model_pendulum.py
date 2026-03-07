@@ -47,3 +47,6 @@ class GHNNPendulum(nn.Module):
         p = x[:, 1:].clone().requires_grad_(True)
         q_next, p_next = self.module(q, p, step)
         return torch.cat([q_next, p_next], dim=1)
+
+# Alias for backward compatibility with training script imports
+GHNN = GHNNPendulum
