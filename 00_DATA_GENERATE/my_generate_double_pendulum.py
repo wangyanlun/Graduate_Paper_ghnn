@@ -68,18 +68,31 @@ for i in range(num_trajs):
         p1, p2 = qp_from_qv(q1, q2, qd1, qd2)
         in_train = (t <= 5.0)
         results.append(dict(
-            traj=i, t=t, q1=q1, q2=q2, p1=p1, p2=p2, train=in_train,
-            qd1=qd1, qd2=qd2
+            traj=i, t=t, q1=q1, q2=q2, p1=p1, p2=p2, train=in_train
         ))
         if j < steps:
             state = rk4_step(state, dt)
 
 df = pd.DataFrame(results)
+state_cols = ['q1', 'q2', 'p1', 'p2']
 
 os.makedirs('Data/DoublePendulum_MLP', exist_ok=True)
 df.to_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories', mode='w')
-df[df['train']].to_hdf('Data/DoublePendulum_MLP/doublependulum_train.h5', key='trajs', mode='w')
-df[~df['train']].to_hdf('Data/DoublePendulum_MLP/doublependulum_test.h5', key='trajs', mode='w')
+df[df['train']][['traj', 't'] + state_cols].to_hdf('Data/DoublePendulum_MLP/doublependulum_train.h5', key='trajs', mode='w')
+df[~df['train']][['traj', 't'] + state_cols].to_hdf('Data/DoublePendulum_MLP/doublependulum_test.h5', key='trajs', mode='w')
 
 print(f"Generated {num_trajs} double pendulum trajectories.")
 print(f"Train set: {df['train'].sum()} points; Test set: {(~df['train']).sum()} points.")
+
+# Save metadata
+meta = {
+    'system': 'DoublePendulum',
+    'dt': dt,
+    'T_total': t_end,
+    'num_trajs': num_trajs,
+    'seed': 2026,
+    'integrator': 'RK4',
+    'train_split': 'time_cutoff',
+    'train_t_max': 5.0,
+}
+pd.Series(meta).to_csv('Data/DoublePendulum_MLP/meta.csv')

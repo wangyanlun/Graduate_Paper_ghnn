@@ -71,16 +71,16 @@ for i in range(num_trajs):
     # Compose trajectory row-by-row
     for j in range(len(traj_q)):
         in_train = (j <= period_cross)
-        results.append(dict(traj=i, t=tvec[j], q=traj_q[j], p=traj_p[j], train=in_train, q0=q0))
+        results.append(dict(traj=i, t=tvec[j], q=traj_q[j], p=traj_p[j], train=in_train))
 
 df = pd.DataFrame(results)
+state_cols = ['q', 'p']
 
 # --- Split into files ---
 os.makedirs('Data/Pendulum_MLP', exist_ok=True)
 df.to_hdf('Data/Pendulum_MLP/pendulum_full.h5', key='trajectories', mode='w')
-# Save train and test masks
-df[df['train']].to_hdf('Data/Pendulum_MLP/pendulum_train.h5', key='trajs', mode='w')
-df[~df['train']].to_hdf('Data/Pendulum_MLP/pendulum_test.h5', key='trajs', mode='w')
+df[df['train']][['traj', 't'] + state_cols].to_hdf('Data/Pendulum_MLP/pendulum_train.h5', key='trajs', mode='w')
+df[~df['train']][['traj', 't'] + state_cols].to_hdf('Data/Pendulum_MLP/pendulum_test.h5', key='trajs', mode='w')
 
 print(f"Generated {num_trajs} pendulum trajectories.")
 print(f"Train set: {df['train'].sum()} points; Test set: {(~df['train']).sum()} points.")
@@ -88,3 +88,15 @@ print(f"Train set: {df['train'].sum()} points; Test set: {(~df['train']).sum()} 
 # Also save a summary for plotting region cut-off per traj
 df_cross = df[df['train']].groupby('traj').tail(1)[['traj','t']]
 df_cross.to_csv('Data/Pendulum_MLP/quarter_period.csv', index=False)
+
+# Save metadata
+meta = {
+    'system': 'Pendulum',
+    'dt': dt,
+    'T_total': total_time,
+    'num_trajs': num_trajs,
+    'seed': 2026,
+    'integrator': 'Stormer-Verlet',
+    'train_split': 'quarter_period',
+}
+pd.Series(meta).to_csv('Data/Pendulum_MLP/meta.csv')

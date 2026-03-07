@@ -84,6 +84,7 @@ def main():
     for traj in range(num_trajs):
         xs, ys, pxs, pys = stormer_verlet(x0s[traj], y0s[traj], px0s[traj], py0s[traj], dt, steps)
         for k, t in enumerate(tvec):
+            in_train = (t <= train_t_max)
             rows_full.append({
                 'traj': traj,
                 't': float(t),
@@ -91,14 +92,15 @@ def main():
                 'y': float(ys[k]),
                 'px': float(pxs[k]),
                 'py': float(pys[k]),
-                'H': float(H_henonheiles(xs[k], ys[k], pxs[k], pys[k]))
+                'train': in_train,
             })
 
     full_df = pd.DataFrame(rows_full)
-    full_df.to_hdf(os.path.join(out_dir, 'henonheiles_full.h5'), key='trajectories', mode='w')
+    state_cols = ['x', 'y', 'px', 'py']
 
-    train_df = full_df[full_df['t'] <= train_t_max][['traj','t','x','y','px','py']].copy()
-    train_df.to_hdf(os.path.join(out_dir, 'henonheiles_train.h5'), key='trajs', mode='w')
+    full_df.to_hdf(os.path.join(out_dir, 'henonheiles_full.h5'), key='trajectories', mode='w')
+    full_df[full_df['train']][['traj', 't'] + state_cols].to_hdf(os.path.join(out_dir, 'henonheiles_train.h5'), key='trajs', mode='w')
+    full_df[~full_df['train']][['traj', 't'] + state_cols].to_hdf(os.path.join(out_dir, 'henonheiles_test.h5'), key='trajs', mode='w')
 
     meta = {
         'system': 'Henon-Heiles',
@@ -108,14 +110,13 @@ def main():
         'num_trajs': num_trajs,
         'seed': seed,
         'integrator': 'Stormer-Verlet',
-        'train_t_min': 0.0,
+        'train_split': 'time_cutoff',
         'train_t_max': train_t_max,
-        'rollout_t_min': 10.0,
-        'rollout_t_max': 50.0,
     }
     pd.Series(meta).to_csv(os.path.join(out_dir, 'meta.csv'))
 
-    print("Done. Saved full + train + meta.")
+    print(f"Generated {num_trajs} Henon-Heiles trajectories.")
+    print(f"Train set: {full_df['train'].sum()} points; Test set: {(~full_df['train']).sum()} points.")
 
 if __name__ == "__main__":
     main()
