@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import os
 
@@ -17,7 +17,7 @@ def grad_q_H(q, p):
 def grad_p_H(q, p):
     return p / (mass*l**2)
 
-# --- Störmer-Verlet integration (structure-preserving) ---
+# --- St枚rmer-Verlet integration (structure-preserving) ---
 def stormer_verlet(q0, p0, dt, steps):
     traj_q = np.zeros(steps+1)
     traj_p = np.zeros(steps+1)
@@ -77,17 +77,17 @@ df = pd.DataFrame(results)
 state_cols = ['q', 'p']
 
 # --- Split into files ---
-os.makedirs('Data/Pendulum_MLP', exist_ok=True)
-df.to_hdf('Data/Pendulum_MLP/pendulum_full.h5', key='trajectories', mode='w')
-df[df['train']][['traj', 't'] + state_cols].to_hdf('Data/Pendulum_MLP/pendulum_train.h5', key='trajs', mode='w')
-df[~df['train']][['traj', 't'] + state_cols].to_hdf('Data/Pendulum_MLP/pendulum_test.h5', key='trajs', mode='w')
+os.makedirs('Data/Pendulum', exist_ok=True)
+df.to_hdf('Data/Pendulum/pendulum_full.h5', key='trajectories', mode='w')
+df[df['train']][['traj', 't'] + state_cols].to_hdf('Data/Pendulum/pendulum_train.h5', key='trajs', mode='w')
+df[~df['train']][['traj', 't'] + state_cols].to_hdf('Data/Pendulum/pendulum_test.h5', key='trajs', mode='w')
 
 print(f"Generated {num_trajs} pendulum trajectories.")
 print(f"Train set: {df['train'].sum()} points; Test set: {(~df['train']).sum()} points.")
 
 # Also save a summary for plotting region cut-off per traj
 df_cross = df[df['train']].groupby('traj').tail(1)[['traj','t']]
-df_cross.to_csv('Data/Pendulum_MLP/quarter_period.csv', index=False)
+df_cross.to_csv('Data/Pendulum/quarter_period.csv', index=False)
 
 # Save metadata
 meta = {
@@ -99,4 +99,4 @@ meta = {
     'integrator': 'Stormer-Verlet',
     'train_split': 'quarter_period',
 }
-pd.Series(meta).to_csv('Data/Pendulum_MLP/meta.csv')
+pd.Series(meta).to_csv('Data/Pendulum/meta.csv')

@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -18,7 +18,7 @@ seed = 2026
 
 # --------------------- Data Loading ---------------------------
 os.makedirs('NeuralNets/DoublePendulum_MLP', exist_ok=True)
-train_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_train.h5', key='trajs')
+train_df = pd.read_hdf('Data/DoublePendulum/doublependulum_train.h5', key='trajs')
 
 X_train = []
 y_train = []
@@ -80,7 +80,7 @@ np.savetxt('NeuralNets/DoublePendulum_MLP/loss.txt', loss_history)
 print(f"Training complete. Final MSE loss: {loss_history[-1]:.6g}")
 
 # --------------------- Autoregressive Inference -----------------------
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 all_pred = []
 model.eval()
 with torch.no_grad():

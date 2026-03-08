@@ -1,4 +1,4 @@
-import os
+﻿import os
 import numpy as np
 import pandas as pd
 import torch
@@ -19,7 +19,7 @@ np.random.seed(seed)
 
 os.makedirs('NeuralNets/HenonHeiles_HENONNET_OOD', exist_ok=True)
 
-train_df = pd.read_hdf('Data/HenonHeiles_MLP/henonheiles_train.h5', key='trajs')
+train_df = pd.read_hdf('Data/HenonHeiles/henonheiles_train.h5', key='trajs')
 
 X_train, y_train = [], []
 for traj in train_df['traj'].unique():
@@ -83,7 +83,7 @@ torch.save(model.state_dict(), 'NeuralNets/HenonHeiles_HENONNET_OOD/henonnet_mod
 np.savetxt('NeuralNets/HenonHeiles_HENONNET_OOD/loss.txt', loss_history)
 
 # Rollout [0,50] from t=0
-full_df = pd.read_hdf('Data/HenonHeiles_MLP/henonheiles_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/HenonHeiles/henonheiles_full.h5', key='trajectories')
 
 pred_rows = []
 model.eval()

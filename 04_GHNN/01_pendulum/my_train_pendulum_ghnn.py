@@ -1,4 +1,4 @@
-import torch
+﻿import torch
 import torch.optim as optim
 import numpy as np
 import pandas as pd
@@ -16,7 +16,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 seed=2026
 
 os.makedirs('NeuralNets/Pendulum_GHNN', exist_ok=True)
-train_df = pd.read_hdf('Data/Pendulum_MLP/pendulum_train.h5', key='trajs')
+train_df = pd.read_hdf('Data/Pendulum/pendulum_train.h5', key='trajs')
 X_train, y_train = [], []
 for traj in train_df['traj'].unique():
     traj_data = train_df[train_df['traj']==traj].sort_values('t')
@@ -63,7 +63,7 @@ torch.save(model.state_dict(), 'NeuralNets/Pendulum_GHNN/ghnn_model.pt')
 np.savetxt('NeuralNets/Pendulum_GHNN/loss.txt', loss_history)
 
 # Save predictions for full trajectories
-full_df = pd.read_hdf('Data/Pendulum_MLP/pendulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/Pendulum/pendulum_full.h5', key='trajectories')
 all_pred = []
 model.eval()
 for traj in full_df['traj'].unique():

@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -16,7 +16,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 seed = 2026
 
 os.makedirs('NeuralNets/Pendulum_HENONNET', exist_ok=True)
-train_df = pd.read_hdf('Data/Pendulum_MLP/pendulum_train.h5', key='trajs')
+train_df = pd.read_hdf('Data/Pendulum/pendulum_train.h5', key='trajs')
 
 X_train, y_train = [], []
 for traj in train_df['traj'].unique():
@@ -31,7 +31,7 @@ y_train = np.vstack(y_train)
 X_train = torch.tensor(X_train, dtype=torch.float32)
 y_train = torch.tensor(y_train, dtype=torch.float32)
 
-# --- HénonNet definition (symplectic map) ---
+# --- H茅nonNet definition (symplectic map) ---
 class HenonMapModule(nn.Module):
     def __init__(self, dim, hidden_dim):
         super().__init__()
@@ -89,7 +89,7 @@ torch.save(model.state_dict(), 'NeuralNets/Pendulum_HENONNET/henonnet_model.pt')
 np.savetxt('NeuralNets/Pendulum_HENONNET/loss.txt', loss_history)
 
 # --- Prediction for full trajectories ---
-full_df = pd.read_hdf('Data/Pendulum_MLP/pendulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/Pendulum/pendulum_full.h5', key='trajectories')
 all_pred = []
 model.eval()
 with torch.no_grad():

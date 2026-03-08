@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -37,19 +37,19 @@ def ensure_numeric(df, cols, name):
     if df[cols].isna().any().any():
         df = df.dropna(subset=cols).copy()
     if df.empty:
-        raise ValueError(f"{name} 数据为空或全为 NaN：{cols}")
+        raise ValueError(f"{name} 鏁版嵁涓虹┖鎴栧叏涓?NaN锛歿cols}")
     return df
 
 os.makedirs('Results/DoublePendulum_GHNN', exist_ok=True)
 
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/DoublePendulum_GHNN/ghnn_predictions.h5', key='preds')
 
 full_df = ensure_numeric(full_df, ['q1','q2','p1','p2','t'], "full_df")
 pred_df = ensure_numeric(pred_df, ['q1_pred','q2_pred','p1_pred','p2_pred','t'], "pred_df")
 
-c_true = "#1f3b73"   # 深蓝
-c_pred = "#f2a241"   # 亮橙
+c_true = "#1f3b73"   # 娣辫摑
+c_pred = "#f2a241"   # 浜
 
 # ====== 1) XY Trajectory (ONLY traj=0) ======
 traj = 0

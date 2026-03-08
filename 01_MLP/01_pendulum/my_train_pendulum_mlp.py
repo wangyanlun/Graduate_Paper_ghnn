@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -19,7 +19,7 @@ seed = 2026
 # --------------------- Data Loading ---------------------------
 
 os.makedirs('NeuralNets/Pendulum_MLP', exist_ok=True)
-train_df = pd.read_hdf('Data/Pendulum_MLP/pendulum_train.h5', key='trajs')
+train_df = pd.read_hdf('Data/Pendulum/pendulum_train.h5', key='trajs')
 
 # Each data point: (q_i, p_i) -> (q_{i+1}, p_{i+1}) within 1/4 period
 X_train = []
@@ -87,7 +87,7 @@ print(f"Training complete. Final MSE loss: {loss_history[-1]:.6g}")
 # --------------------- Model Inference on Full Trajectories for Evaluation -----------------------
 # On ALL trajectories (train + test) for fair comparison plots
 
-full_df = pd.read_hdf('Data/Pendulum_MLP/pendulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/Pendulum/pendulum_full.h5', key='trajectories')
 all_pred = []
 model.eval()
 with torch.no_grad():

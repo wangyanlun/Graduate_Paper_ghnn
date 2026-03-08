@@ -65,7 +65,7 @@ def sample_initial_conditions_energy_shell(num_trajs, E=0.125, seed=2026):
     return x0s, y0s, px0s, py0s
 
 def main():
-    out_dir = os.path.join('Data', 'HenonHeiles_MLP')
+    out_dir = os.path.join('Data', 'HenonHeiles')
     os.makedirs(out_dir, exist_ok=True)
 
     num_trajs = 500

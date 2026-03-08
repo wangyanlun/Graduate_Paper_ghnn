@@ -1,4 +1,4 @@
-import torch
+﻿import torch
 import torch.optim as optim
 import numpy as np
 import pandas as pd
@@ -17,7 +17,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 seed = 2026
 
 os.makedirs('NeuralNets/DoublePendulum_GHNN', exist_ok=True)
-train_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_train.h5', key='trajs')
+train_df = pd.read_hdf('Data/DoublePendulum/doublependulum_train.h5', key='trajs')
 
 X_train, y_train = [], []
 for traj in train_df['traj'].unique():
@@ -66,7 +66,7 @@ torch.save(model.state_dict(), 'NeuralNets/DoublePendulum_GHNN/ghnn_model.pt')
 np.savetxt('NeuralNets/DoublePendulum_GHNN/loss.txt', loss_history)
 
 # --- Rollout predictions (autoregressive) ---
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 all_pred = []
 model.eval()
 for traj in full_df['traj'].unique():

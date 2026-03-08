@@ -1,9 +1,9 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-# --- Hénon-Heiles energy ---
+# --- H茅non-Heiles energy ---
 def energy_terms(x, y, px, py):
     K = 0.5 * (px * px + py * py)
     V = 0.5 * (x * x + y * y) + x * x * y - y * y * y / 3.0
@@ -16,28 +16,28 @@ def ensure_numeric(df, cols, name):
     if df[cols].isna().any().any():
         df = df.dropna(subset=cols).copy()
     if df.empty:
-        raise ValueError(f"{name} 数据为空或全为 NaN：{cols}")
+        raise ValueError(f"{name} 鏁版嵁涓虹┖鎴栧叏涓?NaN锛歿cols}")
     return df
 
 os.makedirs('Results/HenonHeiles_HENONNET_OOD', exist_ok=True)
 
 # --- Load data ---
-full_df = pd.read_hdf('Data/HenonHeiles_MLP/henonheiles_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/HenonHeiles/henonheiles_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/HenonHeiles_HENONNET_OOD/henonnet_rollout_0_50.h5', key='preds')
 
 need_true = ['traj','t','x','y','px','py']
 need_pred = ['traj','t','x_pred','y_pred','px_pred','py_pred']
 if not set(need_true).issubset(full_df.columns):
-    raise ValueError(f"full_df 缺失列: {need_true}")
+    raise ValueError(f"full_df 缂哄け鍒? {need_true}")
 if not set(need_pred).issubset(pred_df.columns):
-    raise ValueError(f"pred_df 缺失列: {need_pred}")
+    raise ValueError(f"pred_df 缂哄け鍒? {need_pred}")
 
 full_df = ensure_numeric(full_df, ['x','y','px','py','t'], "full_df")
 pred_df = ensure_numeric(pred_df, ['x_pred','y_pred','px_pred','py_pred','t'], "pred_df")
 
-# 配色
-c_true = "#1f3b73"   # 深蓝
-c_pred = "#f2a241"   # 亮橙
+# 閰嶈壊
+c_true = "#1f3b73"   # 娣辫摑
+c_pred = "#f2a241"   # 浜
 
 # ====== 1) XY Trajectory (ONLY traj=0) ======
 traj = 0
@@ -49,7 +49,7 @@ merged = pd.merge(
     on='t', how='inner'
 )
 if merged.empty:
-    raise ValueError("traj=0 预测与真实时间轴未对齐，无法绘图。")
+    raise ValueError("traj=0 棰勬祴涓庣湡瀹炴椂闂磋酱鏈榻愶紝鏃犳硶缁樺浘銆?)
 
 t = merged['t'].values
 train_mask = (t <= 10.0)
@@ -65,7 +65,7 @@ plt.plot(x_pred_vals[train_mask], y_pred_vals[train_mask], lw=2.2, color=c_pred,
 plt.plot(x_pred_vals[~train_mask], y_pred_vals[~train_mask], lw=2.2, color=c_pred, ls='--', label='HenonNet (t>10)')
 plt.xlabel("x")
 plt.ylabel("y")
-plt.title("Trajectory (Hénon-Heiles) - Traj 0 (HenonNet)")
+plt.title("Trajectory (H茅non-Heiles) - Traj 0 (HenonNet)")
 plt.legend()
 plt.savefig('Results/HenonHeiles_HENONNET_OOD/trajectory_xy_traj0.png', dpi=200)
 plt.close()
@@ -126,7 +126,7 @@ for traj in example_trajs:
     axes[2,1].set_ylabel("V")
     axes[2,1].legend()
 
-    fig.suptitle(f"Energy vs Time (Hénon-Heiles) - Traj {traj} (HenonNet)")
+    fig.suptitle(f"Energy vs Time (H茅non-Heiles) - Traj {traj} (HenonNet)")
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(f'Results/HenonHeiles_HENONNET_OOD/energy_traj_{traj}.png', dpi=200)
     plt.close()
@@ -162,7 +162,7 @@ plt.plot(mae_by_time[:,0], mae_by_time[:,1], color=c_true, lw=2.2, label="HenonN
 plt.axvline(10.0, color='k', ls=':', lw=2, label='Train/Test split (t=10)')
 plt.xlabel("Time t")
 plt.ylabel("Mean Abs Error (x,y,px,py)")
-plt.title("HenonNet MAE vs Time (Hénon-Heiles)")
+plt.title("HenonNet MAE vs Time (H茅non-Heiles)")
 plt.legend()
 plt.savefig('Results/HenonHeiles_HENONNET_OOD/mae_vs_time.png', dpi=200)
 plt.close()
@@ -170,3 +170,4 @@ plt.close()
 print("XY plot: Results/HenonHeiles_HENONNET_OOD/trajectory_xy_traj0.png")
 print("Energy plots: Results/HenonHeiles_HENONNET_OOD/energy_traj_[traj].png")
 print("MAE plot: Results/HenonHeiles_HENONNET_OOD/mae_vs_time.png")
+

@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -16,7 +16,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 seed = 2026
 
 os.makedirs('NeuralNets/DoublePendulum_HENONNET', exist_ok=True)
-train_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_train.h5', key='trajs')
+train_df = pd.read_hdf('Data/DoublePendulum/doublependulum_train.h5', key='trajs')
 
 X_train, y_train = [], []
 for traj in train_df['traj'].unique():
@@ -31,7 +31,7 @@ y_train = np.vstack(y_train)
 X_train = torch.tensor(X_train, dtype=torch.float32)
 y_train = torch.tensor(y_train, dtype=torch.float32)
 
-# --- HénonNet definition (symplectic map) ---
+# --- H茅nonNet definition (symplectic map) ---
 class HenonMapModule(nn.Module):
     def __init__(self, dim, hidden_dim):
         super().__init__()
@@ -89,7 +89,7 @@ torch.save(model.state_dict(), 'NeuralNets/DoublePendulum_HENONNET/henonnet_mode
 np.savetxt('NeuralNets/DoublePendulum_HENONNET/loss.txt', loss_history)
 
 # --- Rollout predictions (autoregressive) ---
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 all_pred = []
 model.eval()
 with torch.no_grad():
@@ -110,4 +110,4 @@ with torch.no_grad():
             })
 pred_df = pd.DataFrame(all_pred)
 pred_df.to_hdf('NeuralNets/DoublePendulum_HENONNET/henonnet_predictions.h5', key='preds', mode='w')
-print("Double Pendulum HénonNet training and prediction finished.")
+print("Double Pendulum H茅nonNet training and prediction finished.")

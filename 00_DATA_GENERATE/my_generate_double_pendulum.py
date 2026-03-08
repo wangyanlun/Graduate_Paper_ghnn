@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import os
 
@@ -76,10 +76,10 @@ for i in range(num_trajs):
 df = pd.DataFrame(results)
 state_cols = ['q1', 'q2', 'p1', 'p2']
 
-os.makedirs('Data/DoublePendulum_MLP', exist_ok=True)
-df.to_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories', mode='w')
-df[df['train']][['traj', 't'] + state_cols].to_hdf('Data/DoublePendulum_MLP/doublependulum_train.h5', key='trajs', mode='w')
-df[~df['train']][['traj', 't'] + state_cols].to_hdf('Data/DoublePendulum_MLP/doublependulum_test.h5', key='trajs', mode='w')
+os.makedirs('Data/DoublePendulum', exist_ok=True)
+df.to_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories', mode='w')
+df[df['train']][['traj', 't'] + state_cols].to_hdf('Data/DoublePendulum/doublependulum_train.h5', key='trajs', mode='w')
+df[~df['train']][['traj', 't'] + state_cols].to_hdf('Data/DoublePendulum/doublependulum_test.h5', key='trajs', mode='w')
 
 print(f"Generated {num_trajs} double pendulum trajectories.")
 print(f"Train set: {df['train'].sum()} points; Test set: {(~df['train']).sum()} points.")
@@ -95,4 +95,4 @@ meta = {
     'train_split': 'time_cutoff',
     'train_t_max': 5.0,
 }
-pd.Series(meta).to_csv('Data/DoublePendulum_MLP/meta.csv')
+pd.Series(meta).to_csv('Data/DoublePendulum/meta.csv')

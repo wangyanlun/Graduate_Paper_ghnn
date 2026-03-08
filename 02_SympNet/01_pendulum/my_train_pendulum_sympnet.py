@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -18,7 +18,7 @@ seed = 2026
 
 # --- Data loading ---
 os.makedirs('NeuralNets/Pendulum_SYMPNET', exist_ok=True)
-train_df = pd.read_hdf('Data/Pendulum_MLP/pendulum_train.h5', key='trajs')
+train_df = pd.read_hdf('Data/Pendulum/pendulum_train.h5', key='trajs')
 
 X_train = []
 y_train = []
@@ -102,7 +102,7 @@ torch.save(model.state_dict(), 'NeuralNets/Pendulum_SYMPNET/sympnet_model.pt')
 np.savetxt('NeuralNets/Pendulum_SYMPNET/loss.txt', loss_history)
 
 # --- Rollout predictions for complete trajectories ---
-full_df = pd.read_hdf('Data/Pendulum_MLP/pendulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/Pendulum/pendulum_full.h5', key='trajectories')
 all_pred = []
 model.eval()
 with torch.no_grad():

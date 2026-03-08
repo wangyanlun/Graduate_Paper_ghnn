@@ -1,9 +1,9 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-# --- Hénon-Heiles energy ---
+# --- H茅non-Heiles energy ---
 def energy_terms(x, y, px, py):
     K = 0.5 * (px * px + py * py)
     V = 0.5 * (x * x + y * y) + x * x * y - y * y * y / 3.0
@@ -16,19 +16,19 @@ def ensure_numeric(df, cols, name):
     if df[cols].isna().any().any():
         df = df.dropna(subset=cols).copy()
     if df.empty:
-        raise ValueError(f"{name} 数据为空或全为 NaN：{cols}")
+        raise ValueError(f"{name} 鏁版嵁涓虹┖鎴栧叏涓?NaN锛歿cols}")
     return df
 
 os.makedirs('Results/HenonHeiles_GHNN_OOD', exist_ok=True)
 
-full_df = pd.read_hdf('Data/HenonHeiles_MLP/henonheiles_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/HenonHeiles/henonheiles_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/HenonHeiles_GHNN_OOD/ghnn_rollout_0_50.h5', key='preds')
 
 full_df = ensure_numeric(full_df, ['x','y','px','py','t'], "full_df")
 pred_df = ensure_numeric(pred_df, ['x_pred','y_pred','px_pred','py_pred','t'], "pred_df")
 
-c_true = "#1f3b73"   # 深蓝
-c_pred = "#f2a241"   # 亮橙
+c_true = "#1f3b73"   # 娣辫摑
+c_pred = "#f2a241"   # 浜
 
 # ====== 1) XY Trajectory (ONLY traj=0) ======
 traj = 0
@@ -53,7 +53,7 @@ plt.plot(x_pred_vals[train_mask], y_pred_vals[train_mask], lw=2.2, color=c_pred,
 plt.plot(x_pred_vals[~train_mask], y_pred_vals[~train_mask], lw=2.2, color=c_pred, ls='--', label='GHNN (t>10)')
 plt.xlabel("x")
 plt.ylabel("y")
-plt.title("Trajectory (Hénon-Heiles) - Traj 0 (GHNN)")
+plt.title("Trajectory (H茅non-Heiles) - Traj 0 (GHNN)")
 plt.legend()
 plt.savefig('Results/HenonHeiles_GHNN_OOD/trajectory_xy_traj0.png', dpi=200)
 plt.close()
@@ -113,7 +113,7 @@ for traj in example_trajs:
     axes[2,1].set_ylabel("V")
     axes[2,1].legend()
 
-    fig.suptitle(f"Energy vs Time (Hénon-Heiles) - Traj {traj} (GHNN)")
+    fig.suptitle(f"Energy vs Time (H茅non-Heiles) - Traj {traj} (GHNN)")
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(f'Results/HenonHeiles_GHNN_OOD/energy_traj_{traj}.png', dpi=200)
     plt.close()
@@ -149,7 +149,7 @@ plt.plot(mae_by_time[:,0], mae_by_time[:,1], color=c_true, lw=2.2, label="GHNN M
 plt.axvline(10.0, color='k', ls=':', lw=2, label='Train/Test split (t=10)')
 plt.xlabel("Time t")
 plt.ylabel("Mean Abs Error (x,y,px,py)")
-plt.title("GHNN MAE vs Time (Hénon-Heiles)")
+plt.title("GHNN MAE vs Time (H茅non-Heiles)")
 plt.legend()
 plt.savefig('Results/HenonHeiles_GHNN_OOD/mae_vs_time.png', dpi=200)
 plt.close()
@@ -157,3 +157,4 @@ plt.close()
 print("XY plot: Results/HenonHeiles_GHNN_OOD/trajectory_xy_traj0.png")
 print("Energy plots: Results/HenonHeiles_GHNN_OOD/energy_traj_[traj].png")
 print("MAE plot: Results/HenonHeiles_GHNN_OOD/mae_vs_time.png")
+

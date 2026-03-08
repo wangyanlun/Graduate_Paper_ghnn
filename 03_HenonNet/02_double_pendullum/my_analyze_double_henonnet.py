@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -37,28 +37,28 @@ def ensure_numeric(df, cols, name):
     if df[cols].isna().any().any():
         df = df.dropna(subset=cols).copy()
     if df.empty:
-        raise ValueError(f"{name} 数据为空或全为 NaN：{cols}")
+        raise ValueError(f"{name} 鏁版嵁涓虹┖鎴栧叏涓?NaN锛歿cols}")
     return df
 
 os.makedirs('Results/DoublePendulum_HENONNET', exist_ok=True)
 
 # --- Load data ---
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/DoublePendulum_HENONNET/henonnet_predictions.h5', key='preds')
 
 need_true = ['traj','t','q1','q2','p1','p2']
 need_pred = ['traj','t','q1_pred','q2_pred','p1_pred','p2_pred']
 if not set(need_true).issubset(full_df.columns):
-    raise ValueError(f"full_df 缺失列: {need_true}")
+    raise ValueError(f"full_df 缂哄け鍒? {need_true}")
 if not set(need_pred).issubset(pred_df.columns):
-    raise ValueError(f"pred_df 缺失列: {need_pred}")
+    raise ValueError(f"pred_df 缂哄け鍒? {need_pred}")
 
 full_df = ensure_numeric(full_df, ['q1','q2','p1','p2','t'], "full_df")
 pred_df = ensure_numeric(pred_df, ['q1_pred','q2_pred','p1_pred','p2_pred','t'], "pred_df")
 
-# 配色
-c_true = "#1f3b73"   # 深蓝
-c_pred = "#f2a241"   # 亮橙
+# 閰嶈壊
+c_true = "#1f3b73"   # 娣辫摑
+c_pred = "#f2a241"   # 浜
 
 # ====== 1) XY Trajectory (ONLY traj=0) ======
 traj = 0
@@ -70,7 +70,7 @@ merged = pd.merge(
     on='t', how='inner'
 )
 if merged.empty:
-    raise ValueError("traj=0 预测与真实时间轴未对齐，无法绘图。")
+    raise ValueError("traj=0 棰勬祴涓庣湡瀹炴椂闂磋酱鏈榻愶紝鏃犳硶缁樺浘銆?)
 
 t = merged['t'].values
 train_mask = (t <= 5.0)

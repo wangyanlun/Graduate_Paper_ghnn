@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -16,14 +16,14 @@ def total_h(q, p, g=9.81, l=1.0, m=1.0):
 os.makedirs('Results/Pendulum_MLP', exist_ok=True)
 
 # --- Load data ---
-full_df = pd.read_hdf('Data/Pendulum_MLP/pendulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/Pendulum/pendulum_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/Pendulum_MLP/mlp_predictions.h5', key='preds')
-qpr_df = pd.read_csv('Data/Pendulum_MLP/quarter_period.csv')
+qpr_df = pd.read_csv('Data/Pendulum/quarter_period.csv')
 
 n_examples = 6
 example_trajs = np.linspace(0, full_df['traj'].max(), n_examples, dtype=int)
 
-# --- 计算周期 T ---
+# --- 璁＄畻鍛ㄦ湡 T ---
 T = qpr_df['t'].max() * 4
 
 # --- 1. Phase Space Visualization (with correct region shading) ---
@@ -32,9 +32,9 @@ ax = plt.gca()
 q_grid = np.linspace(full_df['q'].min(), full_df['q'].max(), 300)
 p_grid = np.linspace(full_df['p'].min(), full_df['p'].max(), 300)
 Q, P = np.meshgrid(q_grid, p_grid)
-# 灰色区域：p > 0
+# 鐏拌壊鍖哄煙锛歱 > 0
 ax.contourf(Q, P, (P > 0), levels=[0.5, 1.5], colors=['gray'], alpha=0.3)
-# 灰色区域：q > 0 且 p < 0
+# 鐏拌壊鍖哄煙锛歲 > 0 涓?p < 0
 ax.contourf(Q, P, ((Q > 0) & (P < 0)), levels=[0.5, 1.5], colors=['gray'], alpha=0.3)
 for k, traj in enumerate(example_trajs):
     ref = full_df[full_df['traj'] == traj]

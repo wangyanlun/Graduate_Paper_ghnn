@@ -1,4 +1,4 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -34,7 +34,7 @@ def xy2(q1, q2):
 os.makedirs('Results/DoublePendulum_MLP', exist_ok=True)
 
 # --- Load data ---
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/DoublePendulum_MLP/mlp_predictions.h5', key='preds')
 
 # ====== 1) XY Trajectory (ONLY traj=0) ======
@@ -47,15 +47,15 @@ train_mask = (t <= 5.0)
 x2_true, y2_true = xy2(ref['q1'].values, ref['q2'].values)
 x2_pred, y2_pred = xy2(pred['q1_pred'].values, pred['q2_pred'].values)
 
-# 配色
-c_true = "#1f3b73"   # 深蓝
-c_pred = "#f2a241"   # 亮橙
+# 閰嶈壊
+c_true = "#1f3b73"   # 娣辫摑
+c_pred = "#f2a241"   # 浜
 
 plt.figure(figsize=(8, 6))
-# 真实轨迹
+# 鐪熷疄杞ㄨ抗
 plt.plot(x2_true[train_mask], y2_true[train_mask], lw=2.6, color=c_true, label='True (t<=5)')
 plt.plot(x2_true[~train_mask], y2_true[~train_mask], lw=2.6, color=c_true, ls='--', label='True (t>5)')
-# 预测轨迹
+# 棰勬祴杞ㄨ抗
 plt.plot(x2_pred[train_mask], y2_pred[train_mask], lw=2.2, color=c_pred, label='MLP (t<=5)')
 plt.plot(x2_pred[~train_mask], y2_pred[~train_mask], lw=2.2, color=c_pred, ls='--', label='MLP (t>5)')
 

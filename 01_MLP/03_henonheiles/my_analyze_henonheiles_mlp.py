@@ -1,9 +1,9 @@
-import numpy as np
+﻿import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-# --- Hénon-Heiles energy ---
+# --- H茅non-Heiles energy ---
 def energy_terms(x, y, px, py):
     K = 0.5 * (px * px + py * py)
     V = 0.5 * (x * x + y * y) + x * x * y - y * y * y / 3.0
@@ -13,12 +13,12 @@ def energy_terms(x, y, px, py):
 os.makedirs('Results/HenonHeiles_MLP_OOD', exist_ok=True)
 
 # --- Load data ---
-full_df = pd.read_hdf('Data/HenonHeiles_MLP/henonheiles_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/HenonHeiles/henonheiles_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/HenonHeiles_MLP_OOD/mlp_rollout_0_50.h5', key='preds')
 
-# 配色
-c_true = "#1f3b73"   # 深蓝
-c_pred = "#f2a241"   # 亮橙
+# 閰嶈壊
+c_true = "#1f3b73"   # 娣辫摑
+c_pred = "#f2a241"   # 浜
 
 # ====== 1) XY Trajectory (ONLY traj=0) ======
 traj = 0
@@ -33,16 +33,16 @@ x_pred_vals = pred['x_pred'].values
 y_pred_vals = pred['y_pred'].values
 
 plt.figure(figsize=(8, 6))
-# 真实轨迹
+# 鐪熷疄杞ㄨ抗
 plt.plot(x_true[train_mask], y_true[train_mask], lw=2.6, color=c_true, label='True (t<=10)')
 plt.plot(x_true[~train_mask], y_true[~train_mask], lw=2.6, color=c_true, ls='--', label='True (t>10)')
-# 预测轨迹
+# 棰勬祴杞ㄨ抗
 plt.plot(x_pred_vals[train_mask], y_pred_vals[train_mask], lw=2.2, color=c_pred, label='MLP (t<=10)')
 plt.plot(x_pred_vals[~train_mask], y_pred_vals[~train_mask], lw=2.2, color=c_pred, ls='--', label='MLP (t>10)')
 
 plt.xlabel("x")
 plt.ylabel("y")
-plt.title("Trajectory (Hénon-Heiles) - Traj 0")
+plt.title("Trajectory (H茅non-Heiles) - Traj 0")
 plt.legend()
 plt.savefig('Results/HenonHeiles_MLP_OOD/trajectory_xy_traj0.png', dpi=200)
 plt.close()
@@ -96,7 +96,7 @@ for traj in example_trajs:
     axes[2,1].set_ylabel("V")
     axes[2,1].legend()
 
-    fig.suptitle(f"Energy vs Time (Hénon-Heiles) - Traj {traj}")
+    fig.suptitle(f"Energy vs Time (H茅non-Heiles) - Traj {traj}")
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.savefig(f'Results/HenonHeiles_MLP_OOD/energy_traj_{traj}.png', dpi=200)
     plt.close()
@@ -129,7 +129,7 @@ plt.plot(mae_by_time[:,0], mae_by_time[:,1], color=c_true, lw=2.2, label="MLP MA
 plt.axvline(10.0, color='k', ls=':', lw=2, label='Train/Test split (t=10)')
 plt.xlabel("Time t")
 plt.ylabel("Mean Abs Error (x,y,px,py)")
-plt.title("MLP MAE vs Time (Hénon-Heiles)")
+plt.title("MLP MAE vs Time (H茅non-Heiles)")
 plt.legend()
 plt.savefig('Results/HenonHeiles_MLP_OOD/mae_vs_time.png', dpi=200)
 plt.close()
@@ -137,3 +137,4 @@ plt.close()
 print("XY plot: Results/HenonHeiles_MLP_OOD/trajectory_xy_traj0.png")
 print("Energy plots: Results/HenonHeiles_MLP_OOD/energy_traj_[traj].png")
 print("MAE plot: Results/HenonHeiles_MLP_OOD/mae_vs_time.png")
+
