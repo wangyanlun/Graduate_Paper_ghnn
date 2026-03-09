@@ -43,7 +43,7 @@ def ensure_numeric(df, cols, name):
 os.makedirs('Results/DoublePendulum_SYMPNET', exist_ok=True)
 
 # --- Load data ---
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/DoublePendulum_SYMPNET/sympnet_predictions.h5', key='preds')
 
 # === 自动修正预测列名 ===

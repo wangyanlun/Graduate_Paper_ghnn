@@ -42,7 +42,7 @@ def ensure_numeric(df, cols, name):
 
 os.makedirs('Results/DoublePendulum_GHNN', exist_ok=True)
 
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/DoublePendulum_GHNN/ghnn_predictions.h5', key='preds')
 
 full_df = ensure_numeric(full_df, ['q1','q2','p1','p2','t'], "full_df")

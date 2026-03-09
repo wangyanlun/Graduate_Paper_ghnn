@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import torch
+torch.cuda.set_per_process_memory_fraction(0.22, device=0)  # 每个任务最多用 ~1.8GB
 import torch.nn as nn
 import torch.optim as optim
 import os
@@ -18,7 +19,7 @@ seed = 2026
 
 # --- Data loading ---
 os.makedirs('NeuralNets/DoublePendulum_SYMPNET', exist_ok=True)
-train_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_train.h5', key='trajs')
+train_df = pd.read_hdf('Data/DoublePendulum/doublependulum_train.h5', key='trajs')
 
 X_train = []
 y_train = []
@@ -100,7 +101,7 @@ torch.save(model.state_dict(), 'NeuralNets/DoublePendulum_SYMPNET/sympnet_model.
 np.savetxt('NeuralNets/DoublePendulum_SYMPNET/loss.txt', loss_history)
 
 # --- Rollout predictions (autoregressive) ---
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 all_pred = []
 model.eval()
 with torch.no_grad():

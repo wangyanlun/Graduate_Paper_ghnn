@@ -43,7 +43,7 @@ def ensure_numeric(df, cols, name):
 os.makedirs('Results/DoublePendulum_HENONNET', exist_ok=True)
 
 # --- Load data ---
-full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
+full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
 pred_df = pd.read_hdf('NeuralNets/DoublePendulum_HENONNET/henonnet_predictions.h5', key='preds')
 
 need_true = ['traj','t','q1','q2','p1','p2']
