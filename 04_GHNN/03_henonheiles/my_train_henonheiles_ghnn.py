@@ -2,9 +2,10 @@
 import numpy as np
 import pandas as pd
 import torch
+torch.cuda.set_per_process_memory_fraction(0.22, device=0)  # 每个任务最多用 ~1.8GB
 import torch.optim as optim
 
-from ghnn_model_henonheiles import GHNN
+from ghnn_model_henonheiles import GHNN_HenonHeiles as GHNN
 
 hidden_dim = 60
 hidden_layers = 2
