@@ -1,27 +1,24 @@
-﻿import numpy as np
+import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import os
 
-# --------------------- Hyperparameters ------------------------
-hidden_layers = 4
-hidden_dim = 128
-input_dim = 4             # [q1, q2, p1, p2]
-output_dim = 4            # [q1, q2, p1, p2] next state
+hidden_layers = 2
+hidden_dim = 60
+input_dim = 4
+output_dim = 4
 lr = 1e-3
 batch_size = 256
 max_epochs = 2000
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 seed = 2026
 
-# --------------------- Data Loading ---------------------------
-os.makedirs('NeuralNets/DoublePendulum_MLP', exist_ok=True)
-train_df = pd.read_hdf('Data/DoublePendulum/doublependulum_train.h5', key='trajs')
+os.makedirs('NeuralNets/DoublePendulum_HENONNET', exist_ok=True)
+train_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_train.h5', key='trajs')
 
-X_train = []
-y_train = []
+X_train, y_train = [], []
 for traj in train_df['traj'].unique():
     traj_data = train_df[train_df['traj'] == traj].sort_values('t')
     X_traj = traj_data[['q1','q2','p1','p2']].values[:-1]
@@ -34,27 +31,39 @@ y_train = np.vstack(y_train)
 X_train = torch.tensor(X_train, dtype=torch.float32)
 y_train = torch.tensor(y_train, dtype=torch.float32)
 
-# --------------------- Model Definition -----------------------
-class MLP(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim, hidden_layers):
+# --- HénonNet definition (symplectic map) ---
+class HenonMapModule(nn.Module):
+    def __init__(self, dim, hidden_dim):
         super().__init__()
-        layers = [nn.Linear(input_dim, hidden_dim), nn.Tanh()]
-        for _ in range(hidden_layers - 1):
-            layers.append(nn.Linear(hidden_dim, hidden_dim))
-            layers.append(nn.Tanh())
-        layers.append(nn.Linear(hidden_dim, output_dim))
-        self.net = nn.Sequential(*layers)
-    def forward(self, x):
-        return self.net(x)
+        self.f = nn.Sequential(
+            nn.Linear(dim, hidden_dim), nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim), nn.Tanh(),
+            nn.Linear(hidden_dim, dim)
+        )
+    def forward(self, q, p, step=1.0):
+        p_new = p - step * self.f(q)
+        q_new = q + step * self.f(p_new)
+        return q_new, p_new
+
+class HenonNet(nn.Module):
+    def __init__(self, dim, hidden_dim, layers):
+        super().__init__()
+        self.layers = nn.ModuleList([HenonMapModule(dim, hidden_dim) for _ in range(layers)])
+        self.dim = dim
+    def forward(self, x, step=1.0):
+        q, p = x[..., 0:self.dim], x[..., self.dim:]
+        for mod in self.layers:
+            q, p = mod(q, p, step)
+        x_out = torch.cat([q, p], dim=-1)
+        return x_out
 
 torch.manual_seed(seed)
-model = MLP(input_dim, hidden_dim, output_dim, hidden_layers).to(device)
+model = HenonNet(input_dim//2, hidden_dim, hidden_layers).to(device)
 optimizer = optim.Adam(model.parameters(), lr=lr)
 loss_fn = nn.MSELoss()
 
-# --------------------- Training Loop --------------------------
-loss_history = []
 num_train = X_train.shape[0]
+loss_history = []
 for epoch in range(1, max_epochs + 1):
     idx = np.random.permutation(num_train)
     Xb = X_train[idx].to(device)
@@ -64,7 +73,8 @@ for epoch in range(1, max_epochs + 1):
     for i in range(total_batches):
         start = i * batch_size
         end = min((i + 1) * batch_size, num_train)
-        pred = model(Xb[start:end])
+        inp = Xb[start:end]
+        pred = model(inp)
         loss = loss_fn(pred, yb[start:end])
         optimizer.zero_grad()
         loss.backward()
@@ -75,23 +85,22 @@ for epoch in range(1, max_epochs + 1):
     if epoch % 100 == 0 or epoch == 1:
         print(f"Epoch {epoch}, MSE: {avg_loss:.6g}")
 
-torch.save(model.state_dict(), 'NeuralNets/DoublePendulum_MLP/mlp_model.pt')
-np.savetxt('NeuralNets/DoublePendulum_MLP/loss.txt', loss_history)
-print(f"Training complete. Final MSE loss: {loss_history[-1]:.6g}")
+torch.save(model.state_dict(), 'NeuralNets/DoublePendulum_HENONNET/henonnet_model.pt')
+np.savetxt('NeuralNets/DoublePendulum_HENONNET/loss.txt', loss_history)
 
-# --------------------- Autoregressive Inference -----------------------
-full_df = pd.read_hdf('Data/DoublePendulum/doublependulum_full.h5', key='trajectories')
+# --- Rollout predictions (autoregressive) ---
+full_df = pd.read_hdf('Data/DoublePendulum_MLP/doublependulum_full.h5', key='trajectories')
 all_pred = []
 model.eval()
 with torch.no_grad():
     for traj in full_df['traj'].unique():
         traj_data = full_df[full_df['traj'] == traj].sort_values('t')
         qps = traj_data[['q1','q2','p1','p2']].values
-        pred_qp = [qps[0]]  # initial state
+        pred_qp = [qps[0]]
         for i in range(qps.shape[0] - 1):
-            input_tensor = torch.tensor(pred_qp[-1], dtype=torch.float32).unsqueeze(0).to(device)
-            pred_next = model(input_tensor).cpu().numpy()[0]
-            pred_qp.append(pred_next)
+            inp = torch.tensor(pred_qp[-1], dtype=torch.float32).unsqueeze(0).to(device)
+            next_pred = model(inp).cpu().numpy()[0]
+            pred_qp.append(next_pred)
         pred_qp = np.array(pred_qp)
         for j in range(len(pred_qp)):
             all_pred.append({
@@ -100,4 +109,5 @@ with torch.no_grad():
                 'p1_pred': pred_qp[j,2], 'p2_pred': pred_qp[j,3]
             })
 pred_df = pd.DataFrame(all_pred)
-pred_df.to_hdf('NeuralNets/DoublePendulum_MLP/mlp_predictions.h5', key='preds', mode='w')
+pred_df.to_hdf('NeuralNets/DoublePendulum_HENONNET/henonnet_predictions.h5', key='preds', mode='w')
+print("Double Pendulum HénonNet training and prediction finished.")
