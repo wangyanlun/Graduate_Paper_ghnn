@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-
 # ============================================================
 # Henon–Heiles specific GHNN (Separable Hamiltonian)
 # State: z = [x, y, px, py]
@@ -75,9 +74,9 @@ class GHNN_HenonHeiles(nn.Module):
                                            activation=activation)
 
     def forward(self, x: torch.Tensor, step: float = 0.01) -> torch.Tensor:
-        # split
-        q = x[:, 0:2].clone().detach().requires_grad_(True)
-        p = x[:, 2:4].clone().detach().requires_grad_(True)
+        # split: 去掉了 .detach()，保持计算图的完整性
+        q = x[:, 0:2].clone().requires_grad_(True)
+        p = x[:, 2:4].clone().requires_grad_(True)
 
         # 1) p_next = p - h * dU/dq(q)
         U = self.H.U(q)                      # [B]
@@ -85,7 +84,7 @@ class GHNN_HenonHeiles(nn.Module):
         p_next = p - step * grad_q
 
         # 2) q_next = q + h * dT/dp(p_next)
-        p_next = p_next.clone().detach().requires_grad_(True)
+        # 【核心修复】：直接使用 p_next 计算动能 T，绝不断开计算图！
         T = self.H.T(p_next)                # [B]
         grad_p = torch.autograd.grad(T.sum(), p_next, create_graph=True)[0]  # [B,2]
         q_next = q + step * grad_p
